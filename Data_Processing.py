@@ -31,5 +31,3 @@ def clean_data():
         df.drop(columns=['Country Code'], inplace=True)
     
     return df
-
-print(clean_data())
