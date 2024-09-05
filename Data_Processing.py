@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+from fpdf import FPDF
 
 def load_data(file_path):
     if file_path.endswith('.csv'):
@@ -27,27 +28,37 @@ def clean_data(df):
         if pd.to_numeric(df[col], errors='coerce').notnull().all(): 
             df[col] = pd.to_numeric(df[col], errors='coerce')
             print(f"Converted column '{col}' to numeric.")
-
-    def handle_outliers(df, column):
-        Q1 = df[column].quantile(0.25)
-        Q3 = df[column].quantile(0.75)
-        IQR = Q3 - Q1
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        return df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
     
-    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
-    if len(numeric_cols) > 0:
-        print(f"Checking for outliers in numeric columns: {numeric_cols}")
-        for col in numeric_cols:
-            if df[col].notnull().any():
-                df = handle_outliers(df, col)
-                print(f"Outliers handled in column '{col}'.")
-
-    categorical_cols = df.select_dtypes(include=['object']).columns
-    if len(categorical_cols) > 0:
-        print(f"Encoding categorical columns: {categorical_cols}")
-        df = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
-        print("Categorical variables encoded.")
-
     return df
+
+def generate_pdf(df, output_path):
+    """
+    Generate a PDF report of the DataFrame.
+    """
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    # Title
+    pdf.cell(200, 10, txt="Cleaned Data Report", ln=True, align='C')
+
+    # Column names
+    pdf.set_font("Arial", size=10)
+    col_width = pdf.get_string_width(" | ".join(df.columns)) + 10
+    pdf.cell(col_width, 10, txt=" | ".join(df.columns), ln=True)
+
+    # Data rows
+    for index, row in df.iterrows():
+        row_text = ' | '.join(str(x) for x in row.values)
+        pdf.cell(col_width, 10, txt=row_text, ln=True)
+
+    pdf.output(output_path)
+
+if __name__ == '__main__':
+    file_path = 'olympics2024.xlsx'  # Update with your file path
+    cleaned_df = clean_data(load_data(file_path))
+    
+    # Generate PDF of the cleaned data
+    pdf_output_path = 'cleaned_data_report.pdf'
+    generate_pdf(cleaned_df, pdf_output_path)
+    print(f"PDF report generated: {pdf_output_path}")
