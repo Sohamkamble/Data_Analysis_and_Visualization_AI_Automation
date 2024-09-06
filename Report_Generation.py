@@ -4,6 +4,12 @@ from fpdf import FPDF
 import os
 
 def plot_ranking_analysis(ranking_df):
+    """
+    Generate a bar plot for the top 10 countries by total medals.
+    
+    Args:
+        ranking_df (pd.DataFrame): DataFrame containing the top 10 countries and their medal counts.
+    """
     plt.figure(figsize=(12, 8))
     sns.barplot(x='Total', y='Country', data=ranking_df, palette='viridis')
     plt.title('Top 10 Countries by Total Medals')
@@ -14,6 +20,12 @@ def plot_ranking_analysis(ranking_df):
     plt.close()
 
 def plot_correlation_analysis(correlation_df):
+    """
+    Generate a heatmap of the correlation matrix for medal counts.
+    
+    Args:
+        correlation_df (pd.DataFrame): DataFrame containing the correlation matrix of medal counts.
+    """
     correlation_df = correlation_df.set_index(correlation_df.columns[0])  
     correlation_df = correlation_df.astype(float) 
     
@@ -25,6 +37,12 @@ def plot_correlation_analysis(correlation_df):
     plt.close()
 
 def plot_country_wise_analysis(country_summary_df):
+    """
+    Generate a bar plot showing the total number of medals by country.
+    
+    Args:
+        country_summary_df (pd.DataFrame): DataFrame summarizing total medals by country.
+    """
     plt.figure(figsize=(14, 10))
     country_summary_df = country_summary_df.sort_values(by='Total', ascending=False)
     sns.barplot(x='Country', y='Total', data=country_summary_df, palette='magma')
@@ -37,6 +55,12 @@ def plot_country_wise_analysis(country_summary_df):
     plt.close()
 
 def plot_kmeans_clustering(kmeans_df):
+    """
+    Generate a scatter plot showing K-Means clustering results of medal counts.
+    
+    Args:
+        kmeans_df (pd.DataFrame): DataFrame containing medal counts and cluster assignments.
+    """
     required_columns = ['Gold', 'Silver', 'Cluster']
     if not all(col in kmeans_df.columns for col in required_columns):
         raise ValueError(f"Input DataFrame must contain columns: {required_columns}")
@@ -52,6 +76,12 @@ def plot_kmeans_clustering(kmeans_df):
     plt.close()
 
 def plot_pca_analysis(pca_df):
+    """
+    Generate a scatter plot for PCA analysis showing data distribution along principal components.
+    
+    Args:
+        pca_df (pd.DataFrame): DataFrame containing PCA results with principal component scores.
+    """
     plt.figure(figsize=(12, 8))
     sns.scatterplot(x='PC1', y='PC2', data=pca_df, palette='viridis')
     plt.title('PCA Analysis')
@@ -62,9 +92,15 @@ def plot_pca_analysis(pca_df):
     plt.close()
 
 def create_pdf_report():
+    """
+    Create a PDF report containing visualizations and summaries of various analyses.
+    The report includes sections for ranking analysis, correlation analysis, 
+    country-wise analysis, K-Means clustering, and PCA analysis.
+    """
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
 
+    # Title page
     pdf.add_page()
     pdf.set_font("Arial", 'B', 16)
     pdf.cell(200, 10, txt="Comprehensive Medal Analysis Report", ln=True, align='C')

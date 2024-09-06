@@ -8,15 +8,42 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 
 def ranking_analysis(clean_data):
+    """
+    Perform ranking analysis to get the top 10 countries based on the total medals.
+    
+    Args:
+        clean_data (pd.DataFrame): The cleaned dataset.
+        
+    Returns:
+        pd.DataFrame: DataFrame containing the top 10 countries and their medal counts.
+    """
     top_10_countries = clean_data.sort_values(by='Total', ascending=False).head(10)
     return top_10_countries[['Rank', 'Country', 'Gold', 'Silver', 'Bronze', 'Total']]
 
 def correlation_analysis(clean_data):
+    """
+    Perform correlation analysis between medal counts.
+    
+    Args:
+        clean_data (pd.DataFrame): The cleaned dataset.
+        
+    Returns:
+        pd.DataFrame: Correlation matrix of medal counts.
+    """
     correlation_matrix = clean_data[['Gold', 'Silver', 'Bronze', 'Total']].corr()
     correlation_matrix.to_csv('correlation_analysis.csv') 
     return correlation_matrix
 
 def country_wise_analysis(clean_data):
+    """
+    Perform country-wise analysis to summarize medals by country.
+    
+    Args:
+        clean_data (pd.DataFrame): The cleaned dataset.
+        
+    Returns:
+        pd.DataFrame: DataFrame summarizing medals by country.
+    """
     country_summary = clean_data.groupby('Country').agg({
         'Gold': 'sum',
         'Silver': 'sum',
@@ -26,6 +53,15 @@ def country_wise_analysis(clean_data):
     return country_summary
 
 def linear_regression_analysis(clean_data):
+    """
+    Perform linear regression analysis to predict the total medals based on gold, silver, and bronze medals.
+    
+    Args:
+        clean_data (pd.DataFrame): The cleaned dataset.
+        
+    Returns:
+        dict: Dictionary containing regression coefficients, intercept, MSE, and R2 score.
+    """
     features = ['Gold', 'Silver', 'Bronze']
     target = 'Total'
     
@@ -52,6 +88,16 @@ def linear_regression_analysis(clean_data):
     return results
 
 def kmeans_clustering(clean_data, n_clusters=3):
+    """
+    Perform K-Means clustering to group countries based on medal counts.
+    
+    Args:
+        clean_data (pd.DataFrame): The cleaned dataset.
+        n_clusters (int): Number of clusters for K-Means.
+        
+    Returns:
+        pd.DataFrame: DataFrame with clustering results including assigned clusters.
+    """
     features = ['Gold', 'Silver', 'Bronze', 'Total']
     X = clean_data[features]
     
@@ -63,14 +109,23 @@ def kmeans_clustering(clean_data, n_clusters=3):
     
     clean_data['Cluster'] = clusters
     
-    # Ensure the necessary columns are saved in the CSV
+    # Save clustering results
     kmeans_results = clean_data[['Country', 'Gold', 'Silver', 'Cluster']]
     kmeans_results.to_csv('kmeans_clustering.csv', index=False)
     
     return kmeans_results
 
-
 def pca_analysis(clean_data, n_components=2):
+    """
+    Perform PCA to reduce the dimensionality of the medal data.
+    
+    Args:
+        clean_data (pd.DataFrame): The cleaned dataset.
+        n_components (int): Number of principal components to retain.
+        
+    Returns:
+        pd.DataFrame: DataFrame with principal component scores.
+    """
     features = ['Gold', 'Silver', 'Bronze', 'Total']
     X = clean_data[features]
     
@@ -84,6 +139,16 @@ def pca_analysis(clean_data, n_components=2):
     return pca_clean_data
 
 def perform_general_analysis(df):
+    """
+    Perform a comprehensive analysis including ranking, correlation, country-wise summary, 
+    linear regression, K-Means clustering, and PCA. Results are saved to files.
+    
+    Args:
+        df (pd.DataFrame): The cleaned dataset.
+        
+    Returns:
+        dict: Dictionary containing results from various analyses.
+    """
     results = {}
     results['ranking_analysis'] = ranking_analysis(df)
     results['correlation_analysis'] = correlation_analysis(df)
@@ -92,8 +157,6 @@ def perform_general_analysis(df):
     results['kmeans_clustering'] = kmeans_clustering(df)
     results['pca_analysis'] = pca_analysis(df)
     
-    print("Results:", results) 
-
     try:
         results['ranking_analysis'].to_csv('ranking_analysis.csv', index=False)
         print("Ranking analysis saved to ranking_analysis.csv") 
